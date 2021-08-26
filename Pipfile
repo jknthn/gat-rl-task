@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 numpy = "*"
 pandas = "*"
-gym = "*"
+gym = {extras = ["box2d"], version = "*"}
 
 [dev-packages]
 
