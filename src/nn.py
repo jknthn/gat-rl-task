@@ -27,5 +27,4 @@ class DeepQNetwork(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.output_layer(x)
-        x = torch.vstack((F.tanh(x[:,0]), F.sigmoid(x[:,1]), F.sigmoid(x[:,2]))).view(-1, 3)
         return x

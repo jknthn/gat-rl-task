@@ -48,13 +48,12 @@ class DeepQNetworkAgent:
         self.q_network_local.train()
 
         if random.random() > eps:
-            a = action_values.cpu().data.numpy()[0]
-            return a
+            return np.argmax(action_values.cpu().data.numpy())
         else:
-            return np.random.uniform(0, 1, self.action_size)
+            return random.choice(np.arange(self.action_size))
 
     def learn(self, experiences: ExperienceSample, gamma: float):
-        Q_t_next = self.q_network_target(experiences.next_states).detach()
+        Q_t_next = self.q_network_target(experiences.next_states).max(1)[0].unsqueeze(1)
         # print('QTnext1', Q_t_next.shape)
         Q_t_next = Q_t_next
         # print('QTnext2', Q_t_next.shape)

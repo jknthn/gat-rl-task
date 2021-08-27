@@ -14,6 +14,13 @@ def run_deep_q_network_algo(env: gym.Env, agent: DeepQNetworkAgent, episodes: in
     eps = eps_start
     max_step = 1
 
+    action_space = [
+                       (-1, 1, 0.2), (0, 1, 0.2), (1, 1, 0.2),
+                       (-1, 1, 0), (0, 1, 0), (1, 1, 0),
+                       (-1, 0, 0.2), (0, 0, 0.2), (1, 0, 0.2),
+                       (-1, 0, 0), (0, 0, 0), (1, 0, 0)
+                   ]
+
     for episode_no in range(1, episodes + 1):
         state = env.reset() / 255
         score = 0
@@ -24,15 +31,16 @@ def run_deep_q_network_algo(env: gym.Env, agent: DeepQNetworkAgent, episodes: in
                 action = agent.act(state, 0)
             else:
                 action = agent.act(state, eps)
-            next_state, reward, done, _ = env.step(action)
+            next_state, reward, done, _ = env.step(action_space[action])
             next_state = next_state / 255
-            agent.step(Experience(
-                state=state,
-                action=action,
-                reward=reward,
-                next_state=next_state,
-                done=done
-            ))
+            if not play_only:
+                agent.step(Experience(
+                    state=state,
+                    action=action,
+                    reward=reward,
+                    next_state=next_state,
+                    done=done
+                ))
             state = next_state
             score += reward
             step += 1
@@ -48,7 +56,7 @@ def run_deep_q_network_algo(env: gym.Env, agent: DeepQNetworkAgent, episodes: in
             print("#"*80)
             print(f"Episode {episode_no:5d}       score: {score:10.4f}      rolling score: {sum(scores_window) / len(scores_window):10.4f}")
             print("#"*80)
-            torch.save(agent.q_network_local.state_dict(), f'models/checkpoint_3_{episode_no}.pth')
+            torch.save(agent.q_network_local.state_dict(), f'models/checkpoint_4_{episode_no}.pth')
         else:
             print(f"Episode {episode_no:5d}       score: {score:10.4f}      eps: {eps:6.4f}")
 
@@ -63,14 +71,14 @@ if __name__ == '__main__':
     env = gym.make('CarRacing-v0')
     agent = DeepQNetworkAgent(
         state_channels=env.observation_space.shape[-1],
-        action_size=env.action_space.shape[0]
+        action_size=12
     )
-    agent.q_network_local.load_state_dict(torch.load("models/checkpoint_2_90.pth", map_location=torch.device('cpu')))
+    agent.q_network_local.load_state_dict(torch.load("models/checkpoint_4_160.pth", map_location=torch.device('cpu')))
     run_deep_q_network_algo(
         env=env,
         agent=agent,
         episodes=2000,
-        eps_start=0.3,
+        eps_start=0.4507,
         play_only=True
     )
     env.close()
